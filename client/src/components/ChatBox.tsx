@@ -40,7 +40,9 @@ export function ChatBox({
     <section className="chat" aria-label="Chat di stanza">
       <div className="chat__header">
         <span className="chat__title">Chat di stanza</span>
-        <span className="chat__count">{messages.length} messaggi</span>
+        <span className="chat__count">
+          {messages.length} {messages.length === 1 ? 'messaggio' : 'messaggi'}
+        </span>
       </div>
       <div
         className="chat__messages"

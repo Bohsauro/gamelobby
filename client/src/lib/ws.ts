@@ -32,6 +32,7 @@ class WsClient {
   private ws: WebSocket | null = null
   private url = ''
   private nickname: string | null = null
+  private announced: string | null = null
   private status: WsStatus = 'connecting'
   private attempts = 0
   private queue: ClientMessage[] = []
@@ -75,6 +76,16 @@ class WsClient {
   joinLobby(nickname: string): void {
     this.nickname = nickname.trim() === '' ? null : nickname
     if (this.status === 'closed') this.attempts = 0
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      // Socket già aperto: join_lobby va annunciato SOLO se il nickname è cambiato
+      // (join_lobby sul server = "torna alla lobby", esce da una stanza eventuale:
+      // re-annunciare lo stesso nickname a ogni mount butterebbe fuori dalla stanza).
+      if (this.nickname && this.nickname !== this.announced) {
+        this.announced = this.nickname
+        this.send({ type: 'join_lobby', nickname: this.nickname })
+      }
+      return
+    }
     this.ensureSocket()
   }
 
@@ -118,7 +129,10 @@ class WsClient {
       this.attempts = 0
       this.setStatus('open')
       this.flushQueue()
-      if (this.nickname) this.send({ type: 'join_lobby', nickname: this.nickname })
+      if (this.nickname) {
+        this.announced = this.nickname
+        this.send({ type: 'join_lobby', nickname: this.nickname })
+      }
       this.startPing()
     }
 

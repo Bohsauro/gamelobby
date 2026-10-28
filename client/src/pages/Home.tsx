@@ -23,7 +23,7 @@ const STEPS = [
   {
     num: '03',
     title: 'Gioca insieme (presto)',
-    text: 'La stanza funziona già con chat e posti live. I giochi arrivano in arrivo, promesso.',
+    text: 'La stanza funziona già con chat e posti live. I giochi stanno arrivando, promesso.',
   },
 ]
 
@@ -69,7 +69,7 @@ export function Home() {
             </p>
           </div>
 
-          <div className="grid">
+          <div className="grid grid--compact">
             {CATEGORIES.map((category) => (
               <Link
                 key={category.slug}
