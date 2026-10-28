@@ -1,0 +1,21 @@
+{
+  "name": "gamelobby",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "GameLobby — giochi online per pochi amici: lobby e stanze reali via WebSocket.",
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c magenta,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "node server/index.js",
+    "dev:client": "npm --prefix client run dev -- --host",
+    "build": "npm --prefix client run build",
+    "start": "node server/index.js",
+    "smoke": "node server/smoke.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
