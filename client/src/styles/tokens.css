@@ -1,0 +1,49 @@
+:root {
+  --bg: #0a0c14;
+  --bg-soft: #10131f;
+  --surface: #161a29;
+  --surface-2: #1d2234;
+  --border: #262b40;
+  --border-strong: #353c58;
+  --text: #eceefb;
+  --muted: #a2a8c2;
+  --faint: #6b7290;
+  --accent: #8b5cf6;
+  --accent-2: #22d3ee;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --accent-ink: #0e0a1f;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+
+  --sans: 'Inter', system-ui, sans-serif;
+  --display: 'Sora', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+
+  --fs-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --fs-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --fs-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  --fs-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --fs-xl: clamp(1.75rem, 1.5rem + 1.25vw, 2.25rem);
+  --fs-2xl: clamp(2.5rem, 2rem + 2.5vw, 3.5rem);
+  --fs-hero: clamp(2.75rem, 2rem + 5vw, 4.5rem);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.25);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
