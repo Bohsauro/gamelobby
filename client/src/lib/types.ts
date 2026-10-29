@@ -34,14 +34,16 @@ export type ClientMessage =
   | { type: 'join_room'; roomId: string }
   | { type: 'leave_room' }
   | { type: 'chat'; text: string }
+  | { type: 'add_chips'; amount: number }
   | { type: 'ping' }
 
 export type ServerMessage =
-  | { type: 'hello'; you: { id: string; nickname: string }; rooms: RoomSummary[] }
+  | { type: 'hello'; you: { id: string; nickname: string; chips: number }; rooms: RoomSummary[] }
   | { type: 'lobby_update'; rooms: RoomSummary[] }
   | { type: 'room_joined'; room: RoomDetail; you: { id: string; nickname: string; host: boolean } }
   | { type: 'room_update'; room: RoomDetail }
   | { type: 'room_left' }
   | { type: 'chat'; from: string; text: string; ts: number }
+  | { type: 'chips'; balance: number }
   | { type: 'error'; message: string }
   | { type: 'pong' }

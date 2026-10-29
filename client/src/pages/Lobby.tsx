@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { EmptyState } from '../components/EmptyState'
 import { RoomCard } from '../components/RoomCard'
 import { StatusBanner } from '../components/StatusBanner'
+import { ChipsWallet } from '../components/ChipsWallet'
 import { IconUsers } from '../components/icons'
 import { CATEGORIES } from '../data/games'
 import { useWebSocket } from '../hooks/useWebSocket'
@@ -123,7 +124,12 @@ export function Lobby() {
           <div>
             <h1 style={{ fontSize: 'var(--fs-xl)' }}>Lobby</h1>
           </div>
-          <StatusBanner status={status} />
+          <div className="lobby-toolbar__right">
+            <StatusBanner status={status} />
+            {nickname.trim() !== '' && (
+              <ChipsWallet nickname={nickname} send={send} subscribe={subscribe} />
+            )}
+          </div>
         </div>
 
         <form className="nickname-form" onSubmit={saveNickname} aria-label="Scegli il tuo nickname">

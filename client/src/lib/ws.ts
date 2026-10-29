@@ -39,9 +39,14 @@ class WsClient {
   private pingTimer: number | null = null
   private statusCbs = new Set<(s: WsStatus) => void>()
   private typeCbs = new Map<string, Set<AnyHandler>>()
+  private chips: number | null = null
 
   getStatus(): WsStatus {
     return this.status
+  }
+
+  getChips(): number | null {
+    return this.chips
   }
 
   private setStatus(next: WsStatus): void {
@@ -174,6 +179,8 @@ class WsClient {
       if (import.meta.env.DEV) console.warn('[ws] messaggio non valido, ignorato')
       return
     }
+    if (msg.type === 'hello') this.chips = msg.you.chips
+    else if (msg.type === 'chips') this.chips = msg.balance
     const set = this.typeCbs.get(msg.type)
     if (set && set.size > 0) {
       set.forEach((cb) => cb(msg))

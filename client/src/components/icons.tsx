@@ -114,6 +114,17 @@ export function IconDice({ size }: IconProps) {
   )
 }
 
+export function IconChip({ size }: IconProps) {
+  return (
+    <svg {...useProps({ size })}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.2" strokeWidth="1.4" opacity="0.65" />
+      <path d="M12 3.5v3.2M12 17.3v3.2M3.5 12h3.2M17.3 12h3.2" opacity="0.55" />
+      <path d="M6.2 6.2l2.2 2.2M15.6 15.6l2.2 2.2M17.8 6.2l-2.2 2.2M8.4 15.6l-2.2 2.2" opacity="0.55" />
+    </svg>
+  )
+}
+
 export function CategoryGlyph({ slug, size = 24 }: { slug: CategorySlug; size?: number }) {
   switch (slug) {
     case 'carte':

@@ -5,6 +5,7 @@ import { EmptyState } from '../components/EmptyState'
 import { PlayersList } from '../components/PlayersList'
 import { StatusBanner } from '../components/StatusBanner'
 import { Badge } from '../components/Badge'
+import { ChipsWallet } from '../components/ChipsWallet'
 import { CategoryGlyph, IconHome } from '../components/icons'
 import { findCategory } from '../data/games'
 import { useWebSocket } from '../hooks/useWebSocket'
@@ -163,6 +164,7 @@ export function Room() {
             </div>
             <div className="room-head__meta">
               <StatusBanner status={status} />
+              <ChipsWallet nickname={nickname} send={send} subscribe={subscribe} />
               <button className="code-chip" type="button" onClick={copyCode} title="Copia il codice della stanza">
                 <span aria-hidden="true">#</span>
                 {room.id}
@@ -212,7 +214,7 @@ export function Room() {
         </div>
 
         <div style={{ marginTop: 'var(--space-6)' }}>
-          <button className="btn btn--ghost" type="button" onClick={leaveRoom}>
+          <button className="btn btn--ghost room-leave" type="button" onClick={leaveRoom}>
             Esci dalla stanza
           </button>
         </div>

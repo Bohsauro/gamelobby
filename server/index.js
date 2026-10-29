@@ -4,12 +4,16 @@ import { readFile, stat } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { WebSocketServer } from 'ws'
 import { RoomManager, GAME_SLUGS, MAX_PLAYERS_CHOICES, NICKNAME_MAX, ROOM_NAME_MAX, CHAT_MAX } from './rooms.js'
+import { ChipWallet } from './chips.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PORT = Number(process.env.PORT || 4200)
 const HOST = '0.0.0.0'
 const DIST_DIR = path.join(__dirname, '..', 'client', 'dist')
 const INDEX_HTML = path.join(DIST_DIR, 'index.html')
+const CHIPS_FILE = process.env.CHIPS_FILE || path.join(__dirname, 'data', 'chips.json')
+const CHIPS_ADD_MIN = 1
+const CHIPS_ADD_MAX = 10_000
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -38,6 +42,7 @@ function log(message) {
 }
 
 const manager = new RoomManager((message) => log(message))
+const chips = new ChipWallet(CHIPS_FILE)
 
 function stripControl(value) {
   return String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '')
@@ -157,7 +162,26 @@ function handleMessage(client, raw) {
         sendError(client.ws, 'Nickname non valido (1-16 caratteri).')
         return
       }
-      send(manager.joinLobby(client.id, nickname))
+      const result = manager.joinLobby(client.id, nickname)
+      if (result.type === 'hello') {
+        result.you.chips = chips.get(nickname)
+      }
+      send(result)
+      return
+    }
+    case 'add_chips': {
+      const amount = msg.amount
+      if (!Number.isInteger(amount) || amount < CHIPS_ADD_MIN || amount > CHIPS_ADD_MAX) {
+        sendError(client.ws, 'Ammontare non valido.')
+        return
+      }
+      if (!client.nickname) {
+        sendError(client.ws, 'Scegli prima un nickname.')
+        return
+      }
+      const balance = chips.add(client.nickname, amount)
+      send({ type: 'chips', balance })
+      chips.save().catch((err) => log(`errore salvataggio fiches: ${err.message}`))
       return
     }
     case 'create_room': {

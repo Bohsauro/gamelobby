@@ -18,7 +18,10 @@ export function GameCard({
     >
       <header className="game-card__head">
         <h3 className="game-card__title">{game.name}</h3>
-        <Badge tone={badgeTone}>In arrivo</Badge>
+        <div className="game-card__badges">
+          {game.chips && <Badge tone="warn">Con fiches</Badge>}
+          <Badge tone={badgeTone}>In arrivo</Badge>
+        </div>
       </header>
       <p className="game-card__desc">{game.description}</p>
       <p className="game-card__meta">{game.players}</p>

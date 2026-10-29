@@ -706,6 +706,13 @@ ol {
   gap: var(--space-3);
 }
 
+.game-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
 .game-card__title {
   font-size: 1.05rem;
 }
@@ -882,6 +889,46 @@ ol {
   margin-bottom: var(--space-5);
 }
 
+.lobby-toolbar__right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ============================= Wallet fiches ============================= */
+.chips-wallet {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.chips-wallet__icon {
+  width: 18px;
+  height: 18px;
+  color: var(--warn);
+  flex: none;
+}
+
+.chips-wallet__balance {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+.chips-wallet__label {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .nickname-form {
   display: flex;
   align-items: center;
@@ -898,12 +945,25 @@ ol {
 }
 
 @media (max-width: 560px) {
+  .lobby-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lobby-toolbar__right {
+    justify-content: flex-start;
+  }
+
   .nickname-form {
     flex-direction: column;
     align-items: stretch;
   }
 
   .nickname-form .input {
+    width: 100%;
+  }
+
+  .nickname-form .btn {
     width: 100%;
   }
 }
@@ -1224,7 +1284,19 @@ ol {
 
 .chat__input {
   flex: 1;
+  min-width: 0;
   min-height: 44px;
+}
+
+.chat__form .btn {
+  flex: none;
+  min-height: 44px;
+}
+
+@media (max-width: 560px) {
+  .room-leave {
+    width: 100%;
+  }
 }
 
 /* ============================= Riduci movimento ============================= */

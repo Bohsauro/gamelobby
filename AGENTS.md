@@ -129,6 +129,57 @@ Regole RoomManager: id 6 char leggibile (escludi O0I1); stanza vuota → distrug
 - Niente framework CSS/storybook/test unitari (solo smoke), niente i18n (solo italiano), niente analytics.
 - Niente immagini esterne: icone inline SVG custom (carta, cubo 3d, tavolo/pedina, festa/maschera, casa, terminale).
 
+## Aggiornamento 2 — giochi carte con fiches, wallet fiches virtuali, verifica mobile
+
+IMPORTANTE: applica SOLO questa sezione. Il resto della spec resta invariato. Fiches = virtuali e gratuite, MAI soldi veri, nessuna transazione.
+
+### 2.1 Catalogo carte (client/src/data/games.ts)
+- `GameInfo` guadagna `chips?: boolean` (true = gioco con puntate in fiches).
+- Categoria `carte`: ordine e giochi NUOVI (in testa i richiesti, poi gli esistenti, poi Sette e mezzo):
+  1. **Blackjack** — 'Batti il banco arrivando a 21 senza sballare. Puntate in fiches, adrenalina garantita.' players '2-6 giocatori', chips: true
+  2. **Poker** — 'Texas Hold\'em: due carte, cinque comuni e la faccia di chi bluffa meglio.' players '2-8 giocatori', chips: true
+  3. **Scala 40** (esistente, invariato)
+  4. Briscola, Tresette, Cuori, Guerra, Memory (esistenti, invariati)
+  5. **Sette e mezzo** (in coda) — 'Re, cavallo e fante valgono mezzo: decidi quando fermarti senza sballare.' players '2-6 giocatori', chips: true
+- Totale giochi: 27 (carte 9, 3d 6, tavolo 6, party 6). `TOTAL_GAMES` è già calcolato dinamicamente: NON hardcodare.
+
+### 2.2 Home dinamica (client/src/pages/Home.tsx)
+- Stats "GIOCHI PREVISTI": usare `TOTAL_GAMES` (import da data/games) invece del 24 hardcoded.
+- Lede sezione "Scegli il tuo tavolo": testo hardcoded "ventiquattro giochi" → stringa dinamica con `TOTAL_GAMES` (es. `Quattro stanze, ${TOTAL_GAMES} giochi in arrivo.`).
+- Nessun altro 24 hardcoded residuo.
+
+### 2.3 Wallet fiches server
+- Nuovo `server/chips.js`: classe `ChipWallet` — `Map<nicknameLowerCase, balance>`; `constructor(filePath)` carica il JSON all'avvio (se manca: vuoto); `get(nickname)` → number (default 1000 alla prima comparsa); `add(nickname, amount)` → balance aggiornato (cap 100_000, arronta a intero, ammontare ≥ 0); `save()` → writeFile async JSON (nicchia key -> balance), mai crashare se la dir non esiste (mkdir ricorsivo prima).
+- `server/index.js`:
+  - `const CHIPS_FILE = process.env.CHIPS_FILE || path.join(__dirname, 'data', 'chips.json')`; istanzia `const chips = new ChipWallet(CHIPS_FILE)`.
+  - `hello`: `you: { id, nickname, chips: chips.get(nickname) }`.
+  - Nuovo messaggio client `{type:'add_chips', amount}`: valida amount (numero intero, 1–10_000, altrimenti error 'Ammontare non valido.'), richiede nickname (error 'Scegli prima un nickname.'), chiama `chips.add(nickname, amount)`, risponde `{type:'chips', balance}` al solo mittente, poi `chips.save()` (fire-and-forget con .catch log).
+- `server/smoke.mjs`: gira già su porta 4299 con `CHIPS_FILE` puntato a un file temporaneo (`/tmp/gamelobby-chips-smoke.json`, cancellato a inizio test). Aggiungi: after join_lobby → `hello.chips === 1000`; send add_chips 500 → ricevi `chips` con `balance === 1500`; re-join_lobby → `hello.chips === 1500`. Stampa sempre `SMOKE PASS`.
+
+### 2.4 Wallet fiches client
+- `client/src/lib/types.ts`: `hello.you` += `chips: number`; ClientMessage += `{type:'add_chips'; amount:number}`; ServerMessage += `{type:'chips'; balance:number}`.
+- `client/src/components/icons.tsx`: nuova icona `IconChip` (cerchio con bordo, stile fiche da poker, viewBox 24).
+- Nuovo `client/src/components/ChipsWallet.tsx`: mostra icona + saldo formattato `toLocaleString('it-IT')` + bottone "+500 fiches" (classe btn btn--ghost btn--sm, aria-label 'Aggiungi 500 fiches'). Logica: subscribe 'chips' (aggiorna saldo) e legge il saldo iniziale da `hello` (available via subscribe 'hello'); al click send `{type:'add_chips', amount:500}`; stato `busy` (disabilita durante l'attesa); non mostra nulla se nickname vuoto.
+- `client/src/pages/Lobby.tsx`: quando il nickname è presente, mostra `<ChipsWallet />` nella toolbar accanto a StatusBanner (wrap su mobile).
+- `client/src/pages/Room.tsx`: mostra `<ChipsWallet />` nell'header della stanza (nella riga con codice/badge, wrap su mobile).
+- `client/src/components/GameCard.tsx`: se `game.chips` → badge extra "CON FICHES" (pill mono piccola, colore warn/ambra) accanto a "IN ARRIVO"; la card continua a non essere giocabile.
+
+### 2.5 Mobile (obiettivo: utilizzo fluido a 390px e 768px)
+Verifica e, dove serve, sistema:
+- Navbar: `navbar__toggle` visibile SOLO < 761px (media query già presente: controlla che il toggle sia hidden ≥761px e che il menu --open sia un overlay a piena larghezza con bg solido, link ≥ 44px di altezza, chiudibile cliccando un link o il toggle; aria-expanded già gestito).
+- Lobby: `.lobby-toolbar` e `.nickname-form` in colonna < 560px (input full width, bottone full width); `.create-form` full width; `.lobby-grid` già 1 col < 1001px.
+- Room: header stanza con flex-wrap (titolo, codice, badge, wallet non si rompono); `.chat__form` input flessibile + bottone Invia ≥ 44px; bottone "Esci dalla stanza" full width su mobile se serve; nessun overflow-x.
+- GamesSection + Home: griglie già a 1 col < 640px: verifica che hero e stats non trabocchino a 390px.
+- Regola finale: `document.documentElement.scrollWidth <= innerWidth` a 390px su Home, Lobby, Room, /carte (niente scroll orizzontale).
+
+### 2.6 Verifiche (eseguile prima di fermarti)
+1. `npm run build` — tsc strict pulito.
+2. `npm run smoke` — `SMOKE PASS` (inclusi i nuovi assert chips).
+3. Avvia `dev:server`, apri /carte: Blackjack, Poker, Sette e mezzo presenti con badge CON FICHES; Home mostra "27 giochi previsti" e "27 giochi in arrivo".
+4. Lobby con nickname: wallet visibile; click "+500 fiches" → saldo passa da 1.000 a 1.500; ricarica la pagina → il saldo resta (persistenza).
+5. Nessun overflow-x a 390px (ispezione veloce devtools o calcoli).
+- Commit convenzionali (es. `feat: giochi carte con fiches, wallet virtuale e fix mobile`). Non pushare.
+
 ## Git
 - Commit convenzionali (`feat:`, `fix:`, `chore:`). `.gitignore`: node_modules/, dist/, .env, *.log.
 - Ultimo commit messaggio: `feat: GameLobby — sezioni giochi, lobby e stanze WebSocket`.

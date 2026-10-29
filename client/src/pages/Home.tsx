@@ -64,7 +64,7 @@ export function Home() {
           <div className="section-head">
             <h2>Scegli il tuo tavolo</h2>
             <p className="section-head__lede">
-              Quattro stanze, ventiquattro giochi in arrivo. Ogni categoria ha il suo colore:
+              Quattro stanze, {TOTAL_GAMES} giochi in arrivo. Ogni categoria ha il suo colore:
               scegli quella che ti somiglia di più.
             </p>
           </div>

@@ -4,6 +4,7 @@ export interface GameInfo {
   name: string
   description: string
   players: string
+  chips?: boolean
 }
 
 export interface Category {
@@ -22,14 +23,26 @@ export const CATEGORIES: Category[] = [
     accent: 'var(--accent)',
     games: [
       {
-        name: 'Briscola',
-        description: 'La regina dei giochi di carte italiani, a coppie o tutti contro tutti.',
-        players: '2-4 giocatori',
+        name: 'Blackjack',
+        description: 'Batti il banco arrivando a 21 senza sballare. Puntate in fiches, adrenalina garantita.',
+        players: '2-6 giocatori',
+        chips: true,
+      },
+      {
+        name: 'Poker',
+        description: "Texas Hold'em: due carte, cinque comuni e la faccia di chi bluffa meglio.",
+        players: '2-8 giocatori',
+        chips: true,
       },
       {
         name: 'Scala 40',
         description: 'Sequenze e tris per scartare per primi. Occhio alle matte.',
         players: '2-6 giocatori',
+      },
+      {
+        name: 'Briscola',
+        description: 'La regina dei giochi di carte italiani, a coppie o tutti contro tutti.',
+        players: '2-4 giocatori',
       },
       {
         name: 'Tresette',
@@ -50,6 +63,12 @@ export const CATEGORIES: Category[] = [
         name: 'Memory',
         description: 'Ritrova le coppie nascoste e sfida l’attenzione degli amici.',
         players: '2-4 giocatori',
+      },
+      {
+        name: 'Sette e mezzo',
+        description: 'Re, cavallo e fante valgono mezzo: decidi quando fermarti senza sballare.',
+        players: '2-6 giocatori',
+        chips: true,
       },
     ],
   },

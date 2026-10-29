@@ -45,7 +45,11 @@ export function Navbar() {
             </svg>
           </button>
 
-          <ul className={`navbar__links${open ? ' navbar__links--open' : ''}`} id="navbar-menu">
+          <ul
+            className={`navbar__links${open ? ' navbar__links--open' : ''}`}
+            id="navbar-menu"
+            onClick={() => setOpen(false)}
+          >
             <li>
               <NavLink
                 to="/"

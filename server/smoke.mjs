@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process'
+import { rmSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import WebSocket from 'ws'
@@ -7,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PORT = 4299
 const WS_URL = `ws://127.0.0.1:${PORT}/ws`
 const TIMEOUT_MS = 5000
+const CHIPS_SMOKE_FILE = '/tmp/gamelobby-chips-smoke.json'
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -55,9 +57,14 @@ function assert(condition, detail) {
 }
 
 async function main() {
+  try {
+    rmSync(CHIPS_SMOKE_FILE, { force: true })
+  } catch {
+    // file inesistente o non rimovibile: si prosegue
+  }
   const server = spawn(process.execPath, [path.join(__dirname, 'index.js')], {
     cwd: path.join(__dirname, '..'),
-    env: { ...process.env, PORT: String(PORT) },
+    env: { ...process.env, PORT: String(PORT), CHIPS_FILE: CHIPS_SMOKE_FILE },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 
@@ -109,6 +116,28 @@ async function main() {
     const helloA = await waitFor(aMsg, type('hello'), 'hello di A')
     assert(helloA.you.nickname === 'Alice', 'hello di A con nickname Alice')
     assert(Array.isArray(helloA.rooms) && helloA.rooms.length === 0, 'nessuna stanza all’inizio')
+
+    // 1b. wallet fiches: saldo iniziale, +500 via add_chips, persistenza su re-join
+    assert(helloA.you.chips === 1000, 'hello di A con chips 1000')
+    send(A, { type: 'add_chips', amount: 500 })
+    const chipsMsg = await waitFor(aMsg, type('chips'), 'risposta chips per A')
+    assert(chipsMsg.balance === 1500, 'saldo aggiornato a 1500 dopo +500')
+    send(A, { type: 'join_lobby', nickname: 'Alice' })
+    const helloA2 = await waitFor(
+      aMsg,
+      (msg) => type('hello')(msg) && msg.you.chips === 1500,
+      're-join_lobby di A con chips persistiti',
+    )
+    assert(helloA2.you.chips === 1500, 'hello di nuovo con chips 1500')
+
+    // 1c. add_chips non valido → errore gentile, saldo invariato
+    send(A, { type: 'add_chips', amount: 12.5 })
+    const chipsBad = await waitFor(
+      aMsg,
+      (msg) => type('error')(msg) && msg.message === 'Ammontare non valido.',
+      'errore per add_chips non valido',
+    )
+    assert(chipsBad.type === 'error', 'add_chips 12.5 rifiutato con errore')
 
     // 2. B entra in lobby
     send(B, { type: 'join_lobby', nickname: 'Bob' })
