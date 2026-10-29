@@ -25,7 +25,7 @@ export function ChatBox({
   }, [messages])
 
   useEffect(() => {
-    if (!disabled && inputRef.current) inputRef.current.focus()
+    if (!disabled && inputRef.current) inputRef.current.focus({ preventScroll: true })
   }, [disabled])
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {

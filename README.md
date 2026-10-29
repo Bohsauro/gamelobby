@@ -4,6 +4,8 @@ Online games for a handful of friends. Sections for card games, 3D games, board 
 
 Playable from any computer: open the lobby, pick a nickname, create a room and share its 6-character code.
 
+**Virtual chips wallet** — every nickname starts with 1.000 free chips (persisted server-side in `server/data/chips.json`, ignored by git) and can top up with +500 anytime. The chips games (Blackjack, Poker, Sette e mezzo) will use them when they ship. No real money, ever.
+
 ## Stack
 
 - **Client** — Vite + React 18 + TypeScript (strict), hand-rolled CSS with design tokens. `client/`
